@@ -25,16 +25,6 @@ class MarketState:
         if min(self.price, self.supply, self.demand, self.timestamp) < 0:
             raise ValueError("MarketState fields must be non-negative")
 
-    def __lt__(self, other: object) -> bool:
-        """Deterministic tie-break ordering for heap safety."""
-        if not isinstance(other, MarketState):
-            return NotImplemented
-        if self.timestamp != other.timestamp:
-            return self.timestamp < other.timestamp
-        if self.price != other.price:
-            return self.price < other.price
-        return self.bin_hash() < other.bin_hash()
-
     def bin_hash(self, near_equilibrium_threshold: float = 10.0) -> str:
         mismatch = abs(self.supply - self.demand)
         price_precision = 2 if mismatch <= near_equilibrium_threshold else 1
