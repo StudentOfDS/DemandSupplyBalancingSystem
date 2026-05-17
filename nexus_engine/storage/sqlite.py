@@ -63,14 +63,6 @@ class SQLiteRepository:
             )
             return int(cursor.lastrowid)
 
-    def count_rows(self, table_name: str) -> int:
-        allowed = {"market_states", "user_scenarios", "trajectories", "model_outputs", "experiment_logs"}
-        if table_name not in allowed:
-            raise ValueError(f"Unsupported table for count: {table_name}")
-        with self._connect() as conn:
-            row = conn.execute(f"SELECT COUNT(*) AS total FROM {table_name}").fetchone()
-        return int(row["total"])
-
     def latest_market_state(self) -> MarketState | None:
         with self._connect() as conn:
             row = conn.execute(
