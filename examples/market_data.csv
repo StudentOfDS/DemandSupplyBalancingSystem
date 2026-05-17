@@ -1,0 +1,5 @@
+timestamp,price,supply,demand,inventory,competitor_price,seasonality,traffic,cost,regime
+0,98.0,48.0,155.0,42.0,99.0,0.20,1.10,70.0,Stagnant
+1,100.0,53.0,148.0,45.0,101.0,0.25,1.12,71.0,Bear
+2,102.0,57.0,140.0,49.0,102.5,0.30,1.15,72.0,Bear
+3,105.0,64.0,130.0,52.0,104.0,0.35,1.18,73.0,Bull
