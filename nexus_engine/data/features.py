@@ -14,12 +14,7 @@ class FeatureVector:
 
 
 class FeatureIngestionService:
-    def __init__(self, latest_real_features: FeatureVector | None = None) -> None:
-        self._latest_real_features = latest_real_features
-
     def ingest(self, timestamp: int) -> FeatureVector:
-        if self._latest_real_features is not None:
-            return self._latest_real_features
         return FeatureVector(
             seasonality=(timestamp % 12) / 12.0,
             traffic=1.0 + ((timestamp % 7) / 20.0),

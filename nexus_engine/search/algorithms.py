@@ -65,14 +65,12 @@ class SearchLayer:
             if len(path) >= limits.max_depth:
                 continue
 
-            for action in self._actions_for_state(state):
+            for action in (1.0, -1.0, 5.0, -5.0):
                 next_state = self._simulate(state, action)
                 node_count += 1
                 if not self._validate(state, next_state, action):
                     continue
-                g_cost = self._objective.evaluate_trajectory(
-                    TrajectoryDTO(steps=path + (next_state,), is_equilibrium_reached=False)
-                )
+                g_cost = self._objective.evaluate_trajectory(TrajectoryDTO(steps=path + (next_state,), is_equilibrium_reached=False))
                 h_cost = self._heuristic(next_state)
                 heapq.heappush(frontier, (g_cost + h_cost, node_count, next_state, path + (next_state,)))
 
@@ -98,7 +96,7 @@ class SearchLayer:
             if len(path) >= limits.max_depth:
                 continue
 
-            for action in self._actions_for_state(state):
+            for action in (1.0, -1.0, 5.0, -5.0):
                 next_state = self._simulate(state, action)
                 node_count += 1
                 if not self._validate(state, next_state, action):
@@ -117,27 +115,11 @@ class SearchLayer:
                 continue
             if len(path) >= max_depth:
                 continue
-            for action in self._actions_for_state(state):
+            for action in (1.0, -1.0):
                 nxt = self._simulate(state, action)
                 if self._validate(state, nxt, action):
                     queue.append((nxt, path + (nxt,)))
         return results
-
-    def _actions_for_state(self, state: MarketState) -> tuple[float, ...]:
-        mismatch = abs(state.supply - state.demand)
-        if mismatch > 25:
-            base_actions = (5.0, 1.0, -1.0, -5.0)
-        elif mismatch > 8:
-            base_actions = (2.0, 1.0, -1.0, -2.0)
-        else:
-            base_actions = (1.0, 0.5, 0.25, -0.25, -0.5, -1.0)
-
-        if mismatch <= 8:
-            exact = self._markov.equilibrium_action(state)
-            exact = max(min(exact, 5.0), -5.0)
-            if abs(exact) > 0.05:
-                return tuple(dict.fromkeys(base_actions + (round(exact, 3),)))
-        return base_actions
 
     def _simulate(self, current: MarketState, action: float) -> MarketState:
         next_supply, next_demand = self._markov.evolve(current, action)
@@ -152,6 +134,4 @@ class SearchLayer:
 
     def _heuristic(self, state: MarketState) -> float:
         mismatch_lb = min(abs(state.supply - state.demand) / 1000.0, 1.0)
-        min_action = 1.0
-        volatility_lb = self._objective.beta * (min_action / 50.0)
-        return self._objective.alpha * mismatch_lb + volatility_lb + self._hmm.risk_proxy_lower_bound()
+        return self._objective.alpha * mismatch_lb + self._hmm.risk_proxy_lower_bound()
